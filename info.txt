@@ -1,0 +1,71 @@
+Basic Component: 
+Server, Client, Generated Code, Transport protocol
+
+Generated Code - Client and Servcer does not talk directly no to another. There are generated codes (on both server & client side) that create tunnel for transporting messages.
+
+Transport protocol - responsible for sending and receiving messages back and forth (even if he does not understand messages itself). There is 1 defined protocol (protocol buffers)
+
+
+==============================================================================
+
+Design cycle: design message -> generate source code -> write client/server
+
+==============================================================================
+
+RPC Life Cycle:
+
+1) create a channel (channel is going to wrap actual wire protocol(wrap tcp in case of using the http protocol)
+
+2) create a client
+
+3) client send request (with optional metadata)
+
+4) (optional) server send metadata. Server has not still started processing the request  
+
+5) Send/Receive messages
+
+Metadata is very useful for the user authentication (metadata can give u corresponding mechanisms without using divide request) 
+
+==============================================================================
+
+Authentication (client-server instead of user-level authentication)
+
+Auth mechanisms: 
+
+1) Insecure communication - its... literally communication without special security on connections. Some important things: client and server both use http/1 by default with no special security; does not require any special handling; 
+
+2) SSl/TLS - use http/2 by default; gRPC itself try to update http/1 to http/2 if can recognize secure connection; client going to validate certificates (u can not say 'its security connection, trust me'; Or if u got generated cerificate then u might have to do some additional work to make sure that a client recognize such certificate as valid);  
+
+3) Google Token-Based authentication - require token-based connection to work over a secure connection (its just additinal security layer above the ssl certificate, not instead) 
+
+4) Custom authentication - OAuth2 (gRPC itself does not support it, but other plugins can help with it), etc.
+ 
+==============================================================================
+
+Message Types: 
+
+1) Unary - request and response
+
+2) Server Streaming - server steaming data back to the client
+
+3) Client Streaming - client streaming data out to the server
+
+4) Bidirectional streaming
+
+Unary - default http-like request (single request, single response - unary request); inside the protocol buffer its look like: rpc Method(RequestType) returns (ResponseType). U have to have data type, event if u dont wanna to carry any data
+
+Server Streaming - client send single request to the server and then server streaming response by small pieces (streaming video is a good example here); rpc looks like: rpc Method(RequestType) returns (stream ResponseType). Stream means that server going to send an array of responses only one at the time. 
+
+Client Streaming - opposite for the server streaming(file uploading for example). Server waits until the entire of request is received and then send single response.  rpc Method(stream RequestType) returns (ResponseType)
+
+
+Bidirectional streaming - client send request. Server send responses back while client sending request. rpc Method (stream RequestType) returns (stream ResponseType). That means that array of data is going to be send and an array of data is going to be received. 
+
+
+
+
+
+
+
+
+
