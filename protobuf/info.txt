@@ -1,4 +1,6 @@
-Protocol buffers - language & platform neutral, fast, efficient, easily versioned transport layer
+Protocol buffers - language & platform neutral, fast, efficient, easily versioned mechanism for selializing structured data
+
+Protobuf is suitable for both sending data by the network and long-term data storage. Protocol buffers are ideal for any situation in which you need to serialize structured, record-like, typed data in a language-neutral, platform-neutral, extensible manner
 
 Key features: binary formats instead of string; separate context from the data (JSON loook like {"firstName: "Peter", "lastName": "Davison"} whereas protobuf looks like 125Peter227Davison where 1 - field number, 2 - field_type, 5 - length)
 
@@ -61,7 +63,24 @@ same thing for the field name
 message Foo {
 	int32 id = 1;
 	string full_name = 2;
-	reserved "last_name"; // usually used to avoid using old values if u update ur message (if u got id and full_name fields in the old message, now u have id, first_name, last_name - full_name in the new message is probably has different values then in the old message, but ur code still unmarshal it in the old way. So u reserve "full_name" and add other field, "whole_name" for example)
+	reserved "last_name"; // usually used to avoid using old values if u update ur message (if u got id and full_name fields in the old message and now u have id, first_name, last_name in the new message version, then full_name in the new message is probably has different values then in the old message, but ur code still unmarshal it in the old way. So u reserve "full_name" and add other field, "whole_name" for example)
+	
+Best practices: 
 
+- Don't change tags for existing fields
+- Reserve old tags and field names (if u dont use some fields dont just delete it)
+- Or u can use prefix OBSOLETE_ (but "reserved" keyword is preferred)
+- U can switch int32, uint32, int64, uint64, bool types one with another. Another group is sint32 and sint64. Another one group is string and bytes. Final group: fixed32, sfixed32, fixed64, sfixed64.
+
+
+Some bad cases for protobuf using:
+1) If data exceeds a few megabytes.
+2) If u want to compare 2 messages in serialized state (i got 2 differents binary in case when u 2 times serialized single message)
+	
+
+
+Protobuf gets only field number and field value for message encoding (so u can determine type and name for each field only at the client or at the server)
+
+Sint is a bit more efficient for negative numbers coz of encoding algorithms (for int there are always 10 bytes for negative numbers whereas sint use ZigZag algorithm which encode either positive or negative number to positive + some value -> -2 to 3, -2147483648 to 4294967295)
 
 

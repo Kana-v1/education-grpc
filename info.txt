@@ -63,7 +63,8 @@ Bidirectional streaming - client send request. Server send responses back while 
 
 
 
-
+ALTS(Application Transport Security) - mutual auth and transport encryption system developed by Google. Used for securing gRPC communications. Similar to TLS but has been designed for Google's production enviroment. 
+ALTS if fully functional if the application runs on Google Cloud Platform of with a pluggable ALTS handshake service. 
 
 
 
