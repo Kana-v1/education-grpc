@@ -1,0 +1,67 @@
+Protocol buffers - language & platform neutral, fast, efficient, easily versioned transport layer
+
+Key features: binary formats instead of string; separate context from the data (JSON loook like {"firstName: "Peter", "lastName": "Davison"} whereas protobuf looks like 125Peter227Davison where 1 - field number, 2 - field_type, 5 - length)
+
+repeated uint64 vals = 1
+field emenets contains rule(repeated), type(uint64), name (vals), tag(1)
+
+Rule - can be optional (default) and repeated
+
+Types: string, bool, bytes, float, double, int32/int64, uint32/uin64, sint32/sint64 (more efficient for negative values), fixed32/fixed64, sfixed32/sfixed64, enum
+
+Field name has to be in the lower case.  
+
+Field tag has to be unique inside the single message. Smaller values are more efficient
+
+U can use nested messages
+
+Non-standart types:
+- oneof -> 
+
+message Customer {
+	oneof access_type {
+		string email = 1
+		string username = 2
+	}
+}
+
+Only one field in the oneof block can hold value (email OR username in this example, but never both). Its more efficient memory usage
+
+
+- Maps -> map<string, string> email_adress = 1. Key must be string or integer types
+
+- Any ->
+
+message Customer {
+	int32 id = 1
+	repeated Any details = 2
+}
+
+In go it will be converted into the interface. So its worth to create Ur own unmarshal method with using the anypb library (and UnmarshalTo() method)
+
+
+
+Some features:
+
+- global enumerations -> just create enum outside of the message...
+
+- importing other messages -> 
+if u want import mesage from the file 1.proto to the file 2.proto u have to add this one line: `import "1.proto"`. Compiler will create relations between files 1.proto and 2.proto
+
+
+Resrved tags: 
+U can use something like to avoid using some specific tags by any reason:
+message Foo {
+	int32 id = 1;
+	reserved 2; || reserver 2,3, 15 to 25 // nobody can use use tag 2,3, 15-25 in such case
+}
+
+Reserver fields:
+same thing for the field name 
+message Foo {
+	int32 id = 1;
+	string full_name = 2;
+	reserved "last_name"; // usually used to avoid using old values if u update ur message (if u got id and full_name fields in the old message, now u have id, first_name, last_name - full_name in the new message is probably has different values then in the old message, but ur code still unmarshal it in the old way. So u reserve "full_name" and add other field, "whole_name" for example)
+
+
+
